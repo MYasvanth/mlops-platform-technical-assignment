@@ -98,4 +98,11 @@ describe('ApiService', () => {
     expect(req.request.method).toBe('GET');
     req.flush([]);
   });
+
+  it('compareVersions should GET /models/:id/versions/compare with query params', () => {
+    service.compareVersions('m1', 'v1', 'v2').subscribe(res => expect(res).toEqual([]));
+    const req = httpMock.expectOne(`${BASE}/models/m1/versions/compare?v1=v1&v2=v2`);
+    expect(req.request.method).toBe('GET');
+    req.flush([]);
+  });
 });
