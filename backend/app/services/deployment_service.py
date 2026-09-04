@@ -39,7 +39,6 @@ def request_deployment(db: Session, data: DeploymentCreate) -> Deployment:
     db.flush()
     _add_event(db, deployment, "deployment_requested", DeploymentStatus.REQUESTED)
 
-    # Simulate synchronous validation + deploy transition
     deployment.status = DeploymentStatus.VALIDATING
     _add_event(db, deployment, "validation_started", DeploymentStatus.VALIDATING)
     deployment.status = DeploymentStatus.DEPLOYING
@@ -51,9 +50,19 @@ def request_deployment(db: Session, data: DeploymentCreate) -> Deployment:
         _add_event(db, deployment, "deployment_failed", DeploymentStatus.FAILED, "Simulated failure")
         logger.warning("Deployment simulated failure id=%s", deployment.id)
     else:
-        deployment.status = DeploymentStatus.SUCCEEDED
-        _add_event(db, deployment, "deployment_completed", DeploymentStatus.SUCCEEDED)
-        logger.info("Deployment succeeded id=%s env=%s", deployment.id, deployment.environment)
+        # Dispatch async completion to Celery worker
+        try:
+            from app.worker import process_deployment
+            db.commit()
+            db.refresh(deployment)
+            process_deployment.delay(deployment.id)
+            logger.info("Deployment dispatched to worker id=%s env=%s", deployment.id, deployment.environment)
+            return deployment
+        except Exception:
+            # Celery unavailable — fall back to synchronous completion
+            logger.warning("Celery unavailable, completing deployment synchronously id=%s", deployment.id)
+            deployment.status = DeploymentStatus.SUCCEEDED
+            _add_event(db, deployment, "deployment_completed", DeploymentStatus.SUCCEEDED)
 
     db.commit()
     db.refresh(deployment)
