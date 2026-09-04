@@ -36,7 +36,10 @@ const STAGE_ORDER = ['DRAFT','VALIDATED','APPROVED','STAGING','PRODUCTION','ARCH
 
       <div class="section-header">
         <h3>Versions</h3>
-        <button mat-raised-button color="accent" (click)="openAddVersion()">+ Add Version</button>
+        <div>
+          <button mat-stroked-button color="primary" [routerLink]="['/models', model.id, 'compare']" style="margin-right:8px">Compare Versions</button>
+          <button mat-raised-button color="accent" (click)="openAddVersion()">+ Add Version</button>
+        </div>
       </div>
 
       <div *ngIf="versions.length === 0" class="empty-msg">No versions yet.</div>
