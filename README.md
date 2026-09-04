@@ -41,6 +41,9 @@ make test-frontend
 ## API Documentation
 See [docs/api-design.md](docs/api-design.md). Interactive docs available at `http://localhost:8000/docs` when running.
 
+## Screenshots
+![Swagger API Docs](docs/swagger-screenshot.png)
+
 ## Service URLs
 | Service | URL |
 |---------|-----|
