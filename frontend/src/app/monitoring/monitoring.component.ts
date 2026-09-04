@@ -35,6 +35,8 @@ import { ApiService, Metric } from '../api.service';
       <mat-card><mat-card-content><div class="metric-label">Quality Score</div><div class="metric-value">{{ latest.quality_score ?? '—' }}</div></mat-card-content></mat-card>
       <mat-card><mat-card-content><div class="metric-label">Drift Score</div><div class="metric-value">{{ latest.drift_score ?? '—' }}</div></mat-card-content></mat-card>
       <mat-card><mat-card-content><div class="metric-label">Availability</div><div class="metric-value">{{ latest.availability != null ? (latest.availability | percent:'1.2') : '—' }}</div></mat-card-content></mat-card>
+      <mat-card><mat-card-content><div class="metric-label">Last Inference</div><div class="metric-value small">{{ latest.last_inference_at ? (latest.last_inference_at | date:'short') : '—' }}</div></mat-card-content></mat-card>
+      <mat-card><mat-card-content><div class="metric-label">Monitoring Status</div><div class="metric-value small">{{ latest.monitoring_status ?? '—' }}</div></mat-card-content></mat-card>
     </div>
 
     <table mat-table [dataSource]="metrics" *ngIf="metrics.length > 0" class="full-width">
