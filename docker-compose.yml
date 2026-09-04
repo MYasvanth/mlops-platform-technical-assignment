@@ -1,0 +1,71 @@
+services:
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://mlops:mlops@db:5432/mlops}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      SECRET_KEY: ${SECRET_KEY:-changeme}
+      DEBUG: "false"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-mlops}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mlops}
+      POSTGRES_DB: ${POSTGRES_DB:-mlops}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mlops -d mlops"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  worker:
+    build: ./backend
+    command: celery -A app.worker worker --loglevel=info
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://mlops:mlops@db:5432/mlops}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  seed:
+    build: ./backend
+    command: python /seed/seed_db.py
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://mlops:mlops@db:5432/mlops}
+      DATA_DIR: /data
+    volumes:
+      - ./scripts:/seed
+      - ./data:/data
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
