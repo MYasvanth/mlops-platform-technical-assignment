@@ -29,7 +29,7 @@ export interface Metric {
   id: string; model_id: string; version: string; environment: string;
   timestamp: string; latency_ms?: number; throughput_rpm?: number;
   error_rate?: number; quality_score?: number; drift_score?: number;
-  availability?: number;
+  availability?: number; last_inference_at?: string; monitoring_status?: string;
 }
 
 import { environment } from '../environments/environment';
@@ -57,4 +57,8 @@ export class ApiService {
   rollbackDeployment(id: string): Observable<Deployment> { return this.http.post<Deployment>(`${BASE}/deployments/${id}/rollback`, {}); }
 
   getMetrics(modelId: string): Observable<Metric[]> { return this.http.get<Metric[]>(`${BASE}/models/${modelId}/metrics`); }
+
+  compareVersions(modelId: string, v1: string, v2: string): Observable<ModelVersion[]> {
+    return this.http.get<ModelVersion[]>(`${BASE}/models/${modelId}/versions/compare?v1=${v1}&v2=${v2}`);
+  }
 }
