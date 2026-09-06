@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -10,6 +11,13 @@ TEST_DB_URL = "sqlite:///./test.db"
 
 engine = create_engine(TEST_DB_URL, connect_args={"check_same_thread": False})
 TestingSession = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+@pytest.fixture(autouse=True)
+def mock_celery():
+    with patch("app.services.deployment_service._process_deployment") as mock_task:
+        mock_task.delay = MagicMock(side_effect=Exception("Celery disabled in tests"))
+        yield mock_task
 
 
 @pytest.fixture(autouse=True)
