@@ -7,6 +7,11 @@ from app.schemas import DeploymentCreate
 
 logger = logging.getLogger(__name__)
 
+try:
+    from app.worker import process_deployment as _process_deployment
+except Exception:
+    _process_deployment = None
+
 
 def _add_event(db: Session, deployment: Deployment, event: str, status: DeploymentStatus, detail: str | None = None) -> None:
     db.add(DeploymentEvent(deployment_id=deployment.id, event=event, status=status, detail=detail))
@@ -50,16 +55,15 @@ def request_deployment(db: Session, data: DeploymentCreate) -> Deployment:
         _add_event(db, deployment, "deployment_failed", DeploymentStatus.FAILED, "Simulated failure")
         logger.warning("Deployment simulated failure id=%s", deployment.id)
     else:
-        # Dispatch async completion to Celery worker
         try:
-            from app.worker import process_deployment
+            if _process_deployment is None:
+                raise Exception("Celery not available")
             db.commit()
             db.refresh(deployment)
-            process_deployment.delay(deployment.id)
+            _process_deployment.delay(deployment.id)
             logger.info("Deployment dispatched to worker id=%s env=%s", deployment.id, deployment.environment)
             return deployment
         except Exception:
-            # Celery unavailable — fall back to synchronous completion
             logger.warning("Celery unavailable, completing deployment synchronously id=%s", deployment.id)
             deployment.status = DeploymentStatus.SUCCEEDED
             _add_event(db, deployment, "deployment_completed", DeploymentStatus.SUCCEEDED)
