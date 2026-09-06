@@ -6,4 +6,3 @@
 - **No HTTPS in local dev** — TLS termination expected at load balancer in production
 - **Monitoring data is seeded** — metrics come from CSV seed data; no live inference pipeline connected
 - **No pagination** — list endpoints return all records; large datasets will need pagination added
-- **Architecture diagram is a text diagram** — PNG diagram requires manual creation with a diagramming tool
