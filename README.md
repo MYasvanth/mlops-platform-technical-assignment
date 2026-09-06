@@ -42,7 +42,22 @@ make test-frontend
 See [docs/api-design.md](docs/api-design.md). Interactive docs available at `http://localhost:8000/docs` when running.
 
 ## Screenshots
+
+### Model Registry
+![Model Registry](docs/models.png)
+Displays all registered ML models with their name, owner, framework and available versions. Click any model to view version details, lifecycle stage, approval status and available actions.
+
+### Deployments
+![Deployments](docs/deployments.png)
+Shows all deployment requests with their current status (SUCCEEDED, FAILED, ROLLED_BACK). Supports retry on failed deployments and rollback on succeeded deployments.
+
+### Monitoring Dashboard
+![Monitoring Dashboard](docs/monitoring.png)
+Displays real-time model metrics including latency, throughput, error rate, quality score, drift score and availability. Enter a model ID to view its monitoring history.
+
+### Swagger API Docs
 ![Swagger API Docs](docs/swagger-screenshot.png)
+Interactive API documentation available at `http://localhost:8000/docs`. All endpoints can be tested directly from the browser.
 
 ## Service URLs
 | Service | URL |
