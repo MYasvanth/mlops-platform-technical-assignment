@@ -58,8 +58,12 @@ class MLModel(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
-    versions: Mapped[list["ModelVersion"]] = relationship("ModelVersion", back_populates="model", cascade="all, delete-orphan")
-    metrics: Mapped[list["ModelMetric"]] = relationship("ModelMetric", back_populates="model", cascade="all, delete-orphan")
+    versions: Mapped[list["ModelVersion"]] = relationship(
+        "ModelVersion", back_populates="model", cascade="all, delete-orphan"
+    )
+    metrics: Mapped[list["ModelMetric"]] = relationship(
+        "ModelMetric", back_populates="model", cascade="all, delete-orphan"
+    )
 
 
 class ModelVersion(Base):
@@ -94,7 +98,9 @@ class Deployment(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
     version: Mapped["ModelVersion"] = relationship("ModelVersion", back_populates="deployments")
-    events: Mapped[list["DeploymentEvent"]] = relationship("DeploymentEvent", back_populates="deployment", cascade="all, delete-orphan")
+    events: Mapped[list["DeploymentEvent"]] = relationship(
+        "DeploymentEvent", back_populates="deployment", cascade="all, delete-orphan"
+    )
 
 
 class DeploymentEvent(Base):
