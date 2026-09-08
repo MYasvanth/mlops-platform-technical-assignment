@@ -2,7 +2,10 @@ def _create_approved_version(client):
     model = client.post("/api/v1/models", json={"name": "M", "owner": "O", "framework": "sklearn"}).json()
     version = client.post(f"/api/v1/models/{model['id']}/versions", json={"version": "1.0.0"}).json()
     # Approve and advance to STAGING
-    client.patch(f"/api/v1/models/{model['id']}/versions/{version['id']}/stage", json={"stage": "VALIDATED", "approved": True})
+    client.patch(
+        f"/api/v1/models/{model['id']}/versions/{version['id']}/stage",
+        json={"stage": "VALIDATED", "approved": True}
+    )
     client.patch(f"/api/v1/models/{model['id']}/versions/{version['id']}/stage", json={"stage": "APPROVED"})
     client.patch(f"/api/v1/models/{model['id']}/versions/{version['id']}/stage", json={"stage": "STAGING"})
     return model, version
@@ -30,7 +33,12 @@ def test_deploy_unapproved_to_production_blocked(client):
 
 def test_idempotent_deployment(client):
     model, version = _create_approved_version(client)
-    payload = {"model_id": model["id"], "version_id": version["id"], "environment": "staging", "idempotency_key": "key-abc"}
+    payload = {
+        "model_id": model["id"],
+        "version_id": version["id"],
+        "environment": "staging",
+        "idempotency_key": "key-abc"
+    }
 
     r1 = client.post("/api/v1/deployments", json=payload)
     r2 = client.post("/api/v1/deployments", json=payload)

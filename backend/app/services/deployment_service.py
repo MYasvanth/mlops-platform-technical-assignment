@@ -103,7 +103,10 @@ def retry_deployment(db: Session, deployment_id: str) -> Deployment:
 def rollback_deployment(db: Session, deployment_id: str) -> Deployment:
     dep = get_deployment(db, deployment_id)
     if dep.status != DeploymentStatus.SUCCEEDED:
-        raise HTTPException(status_code=422, detail=f"Only SUCCEEDED deployments can be rolled back, current status: {dep.status}")
+        raise HTTPException(
+            status_code=422,
+            detail=f"Only SUCCEEDED deployments can be rolled back, current status: {dep.status}"
+        )
 
     dep.status = DeploymentStatus.ROLLED_BACK
     _add_event(db, dep, "rollback_executed", DeploymentStatus.ROLLED_BACK)

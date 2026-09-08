@@ -28,7 +28,7 @@ def process_deployment(deployment_id: str) -> dict:
         db.commit()
         logger.info("Async deployment succeeded id=%s", deployment_id)
         return {"deployment_id": deployment_id, "status": "SUCCEEDED"}
-    except Exception as exc:
+    except Exception:
         db.rollback()
         logger.exception("Async deployment failed id=%s", deployment_id)
         raise
