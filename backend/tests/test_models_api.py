@@ -24,7 +24,10 @@ def test_get_model_not_found(client):
 
 def test_create_version(client):
     model = client.post("/api/v1/models", json={"name": "M", "owner": "O", "framework": "pytorch"}).json()
-    r = client.post(f"/api/v1/models/{model['id']}/versions", json={"version": "1.0.0", "artifact_uri": "s3://bucket/model"})
+    r = client.post(
+        f"/api/v1/models/{model['id']}/versions",
+        json={"version": "1.0.0", "artifact_uri": "s3://bucket/model"}
+    )
     assert r.status_code == 201
     assert r.json()["stage"] == "DRAFT"
     assert r.json()["approved"] is False

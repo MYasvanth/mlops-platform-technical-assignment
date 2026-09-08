@@ -5,12 +5,18 @@ def test_full_mlops_lifecycle(client, db):
     assert model["id"]
 
     # 2. Register version
-    version = client.post(f"/api/v1/models/{model['id']}/versions", json={"version": "1.0.0", "artifact_uri": "s3://bucket/e2e"}).json()
+    version = client.post(
+        f"/api/v1/models/{model['id']}/versions",
+        json={"version": "1.0.0", "artifact_uri": "s3://bucket/e2e"}
+    ).json()
     assert version["stage"] == "DRAFT"
     assert version["approved"] is False
 
     # 3. Advance lifecycle and approve
-    client.patch(f"/api/v1/models/{model['id']}/versions/{version['id']}/stage", json={"stage": "VALIDATED", "approved": True})
+    client.patch(
+        f"/api/v1/models/{model['id']}/versions/{version['id']}/stage",
+        json={"stage": "VALIDATED", "approved": True}
+    )
     client.patch(f"/api/v1/models/{model['id']}/versions/{version['id']}/stage", json={"stage": "APPROVED"})
     r = client.patch(f"/api/v1/models/{model['id']}/versions/{version['id']}/stage", json={"stage": "STAGING"})
     assert r.status_code == 200

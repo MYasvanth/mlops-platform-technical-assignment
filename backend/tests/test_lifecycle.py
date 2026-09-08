@@ -1,4 +1,3 @@
-import pytest
 from app.models.orm import LifecycleStage, DeploymentStatus, LIFECYCLE_TRANSITIONS
 
 

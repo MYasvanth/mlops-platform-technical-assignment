@@ -39,7 +39,10 @@ def test_get_metrics_ordered_by_timestamp_desc(client, db):
     from datetime import datetime, timezone, timedelta
     model = _create_model(client)
     now = datetime.now(timezone.utc)
-    db.add(ModelMetric(model_id=model["id"], version="1.0", environment="prod", latency_ms=10.0, timestamp=now - timedelta(hours=1)))
+    db.add(ModelMetric(
+        model_id=model["id"], version="1.0", environment="prod",
+        latency_ms=10.0, timestamp=now - timedelta(hours=1)
+    ))
     db.add(ModelMetric(model_id=model["id"], version="1.0", environment="prod", latency_ms=99.0, timestamp=now))
     db.commit()
     r = client.get(f"/api/v1/models/{model['id']}/metrics")
