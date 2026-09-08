@@ -2,7 +2,7 @@ import logging
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
-from app.models.orm import Deployment, DeploymentEvent, DeploymentStatus, ModelVersion, LifecycleStage
+from app.models.orm import Deployment, DeploymentEvent, DeploymentStatus, ModelVersion
 from app.schemas import DeploymentCreate
 
 logger = logging.getLogger(__name__)
@@ -13,7 +13,13 @@ except Exception:
     _process_deployment = None
 
 
-def _add_event(db: Session, deployment: Deployment, event: str, status: DeploymentStatus, detail: str | None = None) -> None:
+def _add_event(
+    db: Session,
+    deployment: Deployment,
+    event: str,
+    status: DeploymentStatus,
+    detail: str | None = None,
+) -> None:
     db.add(DeploymentEvent(deployment_id=deployment.id, event=event, status=status, detail=detail))
 
 
@@ -87,7 +93,10 @@ def get_deployment(db: Session, deployment_id: str) -> Deployment:
 def retry_deployment(db: Session, deployment_id: str) -> Deployment:
     dep = get_deployment(db, deployment_id)
     if dep.status != DeploymentStatus.FAILED:
-        raise HTTPException(status_code=422, detail=f"Only FAILED deployments can be retried, current status: {dep.status}")
+        raise HTTPException(
+            status_code=422,
+            detail=f"Only FAILED deployments can be retried, current status: {dep.status}"
+        )
 
     dep.status = DeploymentStatus.DEPLOYING
     _add_event(db, dep, "retry_started", DeploymentStatus.DEPLOYING)
